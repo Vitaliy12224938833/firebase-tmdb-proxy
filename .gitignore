@@ -1,0 +1,21 @@
+# Node.js
+node_modules/
+npm-debug.log
+
+# dotenv environment variables file
+.env
+
+# Mac OS
+.DS_Store
+
+# Visual Studio Code
+.vscode/
+
+# Log files
+*.log
+
+# Output of 'npm run build'
+/build
+
+# Output of 'npm run test'
+/coverage
