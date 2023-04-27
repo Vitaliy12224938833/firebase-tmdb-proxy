@@ -1,4 +1,24 @@
 require('dotenv').config();
+
+const {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} = require('firebase/auth');
+const {
+  collection,
+  addDoc,
+  getDoc,
+  doc,
+  updateDoc,
+  setDoc,
+} = require('firebase/firestore');
+const {
+  ref,
+  getDownloadURL,
+  uploadBytesResumable,
+} = require('firebase/storage');
 const { initializeApp } = require('firebase/app');
 const { getStorage } = require('firebase/storage');
 const { getFirestore } = require('firebase/firestore');
@@ -19,11 +39,7 @@ const auth = getAuth(fireBaseApp);
 const storage = getStorage(fireBaseApp);
 const db = getFirestore(fireBaseApp);
 
-module.exports = auth;
-module.exports = storage;
-module.exports = db;
-
-const storageSaveImg = async (req, res) => {
+const fbStorageSaveImg = async (req, res) => {
   const { userId, file } = req.body;
   try {
     const storageRef = ref(storage, `image/${userId}/${file.name}`);
@@ -53,7 +69,7 @@ const storageSaveImg = async (req, res) => {
   }
 };
 
-const read = async (req, res) => {
+const fbRead = async (req, res) => {
   const { userId } = req.body;
   try {
     const userCollection = collection(db, 'users');
@@ -72,7 +88,7 @@ const read = async (req, res) => {
   }
 };
 
-app.post('/firestore/set', async (req, res) => {
+const fbSet = async (req, res) => {
   const { userId, personData } = req.body;
 
   const message = 'set data';
@@ -84,9 +100,8 @@ app.post('/firestore/set', async (req, res) => {
     console.error(error);
     res.status(400).send({ success: false, message: error.message });
   }
-});
-
-app.post('/firestore/update', async (req, res) => {
+};
+const fbUpdate = async (req, res) => {
   const { userId, personData } = req.body;
   const message = 'update data';
   try {
@@ -97,9 +112,9 @@ app.post('/firestore/update', async (req, res) => {
     console.error(error);
     res.status(400).send({ success: false, message: error.message });
   }
-});
+};
 
-app.post('/firestore/add', async (req, res) => {
+const fbAdd = async (req, res) => {
   const { userId, personData } = req.body;
   const message = 'add data';
   try {
@@ -110,9 +125,9 @@ app.post('/firestore/add', async (req, res) => {
     console.error(error);
     res.status(400).send({ success: false, message: error.message });
   }
-});
+};
 
-app.post('/firestore/remove-from-global-list', async (req, res) => {
+const fbRemoveFromGlobalList = async (req, res) => {
   const { userId, id, mediaType } = req.body;
   const message = 'remove from global list';
   try {
@@ -125,9 +140,9 @@ app.post('/firestore/remove-from-global-list', async (req, res) => {
     console.error(error);
     res.status(400).send({ success: false, message: error.message });
   }
-});
+};
 
-app.post('/firestore/save-in-global-list', async (req, res) => {
+const fbSaveInGlobalList = async (req, res) => {
   const { userId, id, mediaType } = req.body;
   const message = 'save in globl list';
   try {
@@ -140,9 +155,9 @@ app.post('/firestore/save-in-global-list', async (req, res) => {
     console.error(error);
     res.status(400).send({ success: false, message: error.message });
   }
-});
+};
 
-app.post('/firestore/remove-from-list', async (req, res) => {
+const fbRemoveFromList = async (req, res) => {
   const { userId, id, category, mediaType } = req.body;
   const message = 'remove from list';
   try {
@@ -155,9 +170,9 @@ app.post('/firestore/remove-from-list', async (req, res) => {
     console.error(error);
     res.status(400).send({ success: false, message: error.message });
   }
-});
+};
 
-app.post('/firestore/save-in-list', async (req, res) => {
+const fbSaveInList = async (req, res) => {
   const { userId, id, category, mediaType } = req.body;
   const message = 'remove from list';
   try {
@@ -171,9 +186,9 @@ app.post('/firestore/save-in-list', async (req, res) => {
     console.error(error);
     res.status(400).send({ success: false, message: error.message });
   }
-});
+};
 
-app.get('/auth-on', async (req, res) => {
+const fbAuthOn = async (req, res) => {
   try {
     const listen = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -188,9 +203,9 @@ app.get('/auth-on', async (req, res) => {
     console.error(error);
     res.status(400).send({ success: false, message: error.message });
   }
-});
+};
 
-app.post('/sign-up', async (req, res) => {
+const fbSignUp = async (req, res) => {
   const { email, password } = req.body;
   try {
     const userCredential = await createUserWithEmailAndPassword(
@@ -204,9 +219,9 @@ app.post('/sign-up', async (req, res) => {
     console.error(error);
     res.send({ success: false, message: error.message });
   }
-});
+};
 
-app.get('/sign-out', async (req, res) => {
+const fbSignOut = async (req, res) => {
   const message = 'sign out successful';
   try {
     signOut(auth);
@@ -215,9 +230,9 @@ app.get('/sign-out', async (req, res) => {
     console.error(error);
     res.status(400).send({ success: false, message: error.message });
   }
-});
+};
 
-app.post('/sign-in', async (req, res) => {
+const fbSignIn = async (req, res) => {
   const { email, password } = req.body;
   try {
     const userCredential = await signInWithEmailAndPassword(
@@ -233,4 +248,20 @@ app.post('/sign-in', async (req, res) => {
     console.error(error);
     res.status(400).send({ success: false, message: error.message });
   }
-});
+};
+
+module.exports = {
+  fbAdd,
+  fbAuthOn,
+  fbRead,
+  fbRemoveFromGlobalList,
+  fbRemoveFromList,
+  fbSaveInGlobalList,
+  fbSaveInList,
+  fbSet,
+  fbSignIn,
+  fbSignOut,
+  fbSignUp,
+  fbStorageSaveImg,
+  fbUpdate,
+};
